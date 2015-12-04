@@ -13,8 +13,8 @@ namespace TodoWebApplication.DAL
         {
             var users = new List<User>
             {
-                new User { Name = "Blair" },
-                new User { Name = "Vicky" }
+                new User { Name = "Blair", Email = "jbh@gmail.com" },
+                new User { Name = "Vicky", Email = "vics" }
             };
 
             foreach( User user in users)
