@@ -1,4 +1,4 @@
-﻿@model TodoWebApplication.Models.User
+﻿@model TodoWebApplication.Models.Todo
 
 @{
     ViewBag.Title = "Delete";
@@ -12,13 +12,15 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Name)
-            @Html.DisplayNameFor(model => model.Email)
+            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.DueDate)
+            @Html.DisplayNameFor(model => model.Done)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Name)
-            @Html.DisplayFor(model => model.Email)
+            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.DueDate)
+            @Html.DisplayFor(model => model.Done)
         </dd>
 
     </dl>

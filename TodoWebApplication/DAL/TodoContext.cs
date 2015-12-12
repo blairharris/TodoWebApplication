@@ -1,23 +1,32 @@
-﻿using System;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using TodoWebApplication.Models;
 
 namespace TodoWebApplication.DAL
 {
-    public class TodoContext : DbContext
+    public class TodoContext : IdentityDbContext<ApplicationUser>
     {
-        public TodoContext() : base("TodoContext")
+        public DbSet<Todo> Todos { get; set; }
+
+        public TodoContext() : base("TodoContext", throwIfV1Schema: false)
         {
         }
 
-        public DbSet<User> Users { get; set; }
+        public static TodoContext Create()
+        {
+            return new TodoContext();
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
     }

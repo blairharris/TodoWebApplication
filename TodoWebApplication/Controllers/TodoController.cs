@@ -1,24 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using TodoWebApplication.DAL;
 using TodoWebApplication.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace TodoWebApplication.Controllers
 {
-    public class UsersController : Controller
+    [Authorize]
+    public class TodoController : Controller
     {
-        private TodoContext db = new TodoContext();
+        private readonly TodoContext _db;
+
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public TodoController()
+        {
+            _db = new TodoContext();
+            _userManager = new UserManager<Models.ApplicationUser>(new UserStore<ApplicationUser>(_db));
+        }
 
         // GET: Users
         public ActionResult Index()
         {
-            return View(db.Users.ToList());
+            var currentUser = _userManager.FindById(User.Identity.GetUserId());
+
+            return View(_db.Todos.ToList().Where( todo => todo.User == null));
         }
 
         // GET: Users/Details/5
@@ -28,7 +37,7 @@ namespace TodoWebApplication.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            Todo user = _db.Todos.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -47,16 +56,16 @@ namespace TodoWebApplication.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Name,Email")] User user)
+        public ActionResult Create([Bind(Include = "ID,Description,DueDate,Done")] Todo todo)
         {
             if (ModelState.IsValid)
             {
-                db.Users.Add(user);
-                db.SaveChanges();
+                _db.Todos.Add(todo);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(user);
+            return View(todo);
         }
 
         // GET: Users/Edit/5
@@ -66,7 +75,7 @@ namespace TodoWebApplication.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            Todo user = _db.Todos.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -79,12 +88,12 @@ namespace TodoWebApplication.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Name,Email")] User user)
+        public ActionResult Edit([Bind(Include = "ID,Name,Email")] Todo user)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(user).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(user).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(user);
@@ -97,7 +106,7 @@ namespace TodoWebApplication.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            User user = db.Users.Find(id);
+            Todo user = _db.Todos.Find(id);
             if (user == null)
             {
                 return HttpNotFound();
@@ -110,9 +119,9 @@ namespace TodoWebApplication.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            User user = db.Users.Find(id);
-            db.Users.Remove(user);
-            db.SaveChanges();
+            Todo user = _db.Todos.Find(id);
+            _db.Todos.Remove(user);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -120,7 +129,7 @@ namespace TodoWebApplication.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }
